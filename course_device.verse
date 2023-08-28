@@ -19,4 +19,4 @@ course_device := class(creative_device):
         Print("OnTeleported")
         for(Index : int = 0..ShutterDevices.Length - 1 ):
             if(Shutter := ShutterDevices[Index]):
-                Shutter.Reverse()
+        #       Shutter.Reverse()

@@ -66,13 +66,31 @@ answer_device := class(creative_device):
 
     OnEnterPressed(Agent: agent):void =
         PlayInputSound()
-        if (CurrentInput = CorrectAnswer):
+        IsCorrect := IsCorrectInput(CurrentInput)
+        if (IsCorrect?):
             Gatemover.Advance()
             GateSpeaker.Play()
             SoundEffectSpeaker.Play()
+            spawn{ResetGate()}
         else:
             spawn{MonsterMover.FollowPlayer(Agent)}
         UpdateAnswerBoard("")
+
+    ResetGate()<suspends>:void =
+        Sleep(15.0)
+        Gatemover.Reverse()
+
+
+    IsCorrectInput<private>(Input: string):logic =
+        if (Input = CorrectAnswer):
+            return true
+        else if (Input = "0"+CorrectAnswer):
+            return true
+        else if (Input = "00"+CorrectAnswer):
+            return true
+        else :
+            return false
+
 
     OnButtonPressed(Agent: agent, Num: string):void =
         Print("{Num} is pressed")
