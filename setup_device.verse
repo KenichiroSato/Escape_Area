@@ -10,11 +10,13 @@ using { /UnrealEngine.com/Temporary/Diagnostics }
 setup_device := class(creative_device):
 
     @editable FlashlightGranter: item_granter_device = item_granter_device{}
-    @editable SpawnDevice:  player_spawner_device = player_spawner_device{}
+    @editable SpawnDevices:[]player_spawner_device = array{}
 
     # Runs when the device is started in a running game
     OnBegin<override>()<suspends>:void=
-        SpawnDevice.SpawnedEvent.Subscribe(OnPlayerSpawned)
+        for(Index : int = 0..SpawnDevices.Length - 1 ):
+            if(SpawnDevice := SpawnDevices[Index]):
+                SpawnDevice.SpawnedEvent.Subscribe(OnPlayerSpawned)
 
     OnPlayerSpawned(Agent: agent):void=
         FlashlightGranter.GrantItem(Agent)
