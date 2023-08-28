@@ -16,7 +16,7 @@ monster_device := class(creative_device):
     @editable Light: customizable_light_device = customizable_light_device{}
     var InitialPosition<private>: vector3 = vector3{X:=0.0, Y:= 0.0, Z:=0.0}
     var InitialRotation<private>: rotation = rotation{}
-    var isFollowing<private>: logic = false
+    var CurrentAgent<private>: ?agent = false
 
     # Runs when the device is started in a running game
     OnBegin<override>()<suspends>:void=
@@ -25,25 +25,27 @@ monster_device := class(creative_device):
         MonsterMutator.AgentEntersEvent.Subscribe(OnPlayerCaptured)
 
     OnPlayerCaptured(Agent : agent) :void =
-        if (not isFollowing?):
+        if (CurrentAgent = false):
             return
         if (FortniteCharacter : fort_character = Agent.GetFortCharacter[]):
             MyCharacterHealth : float = FortniteCharacter.GetHealth()
             FortniteCharacter.Damage(MyCharacterHealth)
-            set isFollowing = false
+        if (Current:= CurrentAgent?, Current = Agent) {
+            set CurrentAgent = false
             BackToInitialPosition()
+        }
 
     BackToInitialPosition():void =
         Light.TurnOff()
         spawn{Monster.MoveTo(InitialPosition, InitialRotation, 1.0 )}
     
     FollowPlayer(Agent : agent)<suspends>:void=
-        set isFollowing = true
+        set CurrentAgent = option{Agent}
         var MoveSpeed :float = 0.1
         Light.TurnOn()
         LaughSpeaker.Play()
         loop:
-            if (not isFollowing?):
+            if (CurrentAgent = false):
                 break
             if (PlayerCharacter := Agent.GetFortCharacter[]):
                 PropLocation := Monster.GetTransform().Translation
